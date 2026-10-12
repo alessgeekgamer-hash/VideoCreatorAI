@@ -1,0 +1,31 @@
+# Compila el IPA en la nube (macOS) gratis con Codemagic.
+# Pasos:
+#  1. Conecta este repo en https://codemagic.io (plan gratuito).
+#  2. Ejecuta el workflow "ios-unsigned".
+#  3. Descarga el .ipa desde Artifacts e instalalo con
+#     Sideloadly o AltStore (cada 7 dias con cuenta Apple gratuita).
+# Sin cuenta Apple de pago ($99/ano) el IPA sale SIN firmar:
+# no se puede subir a App Store, solo sideload en tu iPhone.
+
+workflows:
+  ios-unsigned:
+    name: iOS sin firmar (IPA)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Dependencias Flutter
+        script: |
+          flutter pub get
+      - name: Pods iOS
+        script: |
+          cd ios
+          pod install
+      - name: Compilar IPA sin firmar
+        script: |
+          flutter build ipa --release --no-codesign
+    artifacts:
+      - build/ios/ipa/*.ipa
